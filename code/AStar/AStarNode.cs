@@ -11,6 +11,11 @@ public struct AStarNode : IHeapItem<AStarNode>, IEquatable<AStarNode>
 
 	public AStarNode() { }
 
+	public AStarNode( Vector3S pos ) : this()
+	{
+		Position = pos;
+	}
+
 	public int CompareTo( AStarNode other )
 	{
 		var compare = fCost.CompareTo( other.fCost );
