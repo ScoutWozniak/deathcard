@@ -66,6 +66,20 @@ public struct Vector3B : IEquatable<Vector3B>
 	public static bool operator !=( Vector3B a, Vector3B b )
 		=> !(a == b);
 
+	/// <summary>
+	/// Get the distance between this Vector3B and another
+	/// </summary>
+	/// <param name="other"></param>
+	/// <returns></returns>
+	public float Distance( Vector3B other )
+	{
+		float dx = other.x - x;
+		float dy = other.y - y;
+		float dz = other.z - z;
+
+		return (float)Math.Sqrt( dx * dx + dy * dy + dz * dz );
+	}
+
 	public bool Equals( Vector3B other )
 	{
 		return x == other.x
