@@ -2,8 +2,8 @@
 
 public struct AStarNode : IHeapItem<AStarNode>, IEquatable<AStarNode>
 {
-	public IVoxel Current { get; internal set; } = null;
-	public Vector3S Position { get; internal set; }
+	public VoxelQueryData Data { get; internal set; }
+	public VoxelWorld World { get; internal set; }
 	public float gCost { get; internal set; } = 0f;
 	public float hCost { get; internal set; } = 0f;
 	public float fCost => gCost + hCost;
@@ -11,10 +11,27 @@ public struct AStarNode : IHeapItem<AStarNode>, IEquatable<AStarNode>
 
 	public AStarNode() { }
 
-	public AStarNode( Vector3S pos ) : this()
+	public AStarNode( VoxelWorld world, VoxelQueryData data ) : this()
 	{
-		Position = pos;
+		Data = data;
+		World = world;
 	}
+
+	public AStarNode? GetNeighbour( Vector3B offset )
+	{
+		var checkPosition = Data.Position + offset;
+
+		var queryData = World?.GetByOffset( checkPosition );
+
+		if ( queryData != null )
+		{
+			var newNode = new AStarNode( World, queryData.Value );
+			return newNode;
+		}
+
+		return null;
+	}
+
 
 	public int CompareTo( AStarNode other )
 	{
