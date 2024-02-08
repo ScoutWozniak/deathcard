@@ -60,10 +60,16 @@ public struct Vector3B : IEquatable<Vector3B>
 	public static Vector3B operator +( Vector3B a, Vector3B b )
 		=> new Vector3B( a.x + b.x, a.y + b.y, a.z + b.z );
 
+	public static bool operator ==( Vector3B a, Vector3B b )
+		=> a.Equals( b );
+
+	public static bool operator !=( Vector3B a, Vector3B b )
+		=> !(a == b);
+
 	public bool Equals( Vector3B other )
 	{
-		return x == other.x 
-			&& y == other.y 
+		return x == other.x
+			&& y == other.y
 			&& z == other.z;
 	}
 

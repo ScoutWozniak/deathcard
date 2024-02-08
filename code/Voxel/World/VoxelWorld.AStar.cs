@@ -15,7 +15,7 @@ partial class VoxelWorld
 	/// <param name="maxDistance">Max distance it will search for, then will just approach the closest point</param>
 	/// <param name="reversed">Whether or not to reverse the resulting path.</param>
 	/// <returns>An <see cref="List{AStarNode}"/> that contains the computed path.</returns>
-	internal AStarPath ComputePathInternal( Vector3S start, Vector3S end, CancellationToken token, float maxDistance = 2048f, bool reversed = false )
+	internal AStarPath ComputePathInternal( Vector3B start, Vector3B end, CancellationToken token, float maxDistance = 2048f, bool reversed = false )
 	{
 		// Setup.
 		var path = new AStarPath();
@@ -23,10 +23,12 @@ partial class VoxelWorld
 		var maxCells = 8192; // Placeholder until I have something to calculate this (Max voxels in a VoxelWorld?)
 		var openSet = new Heap<AStarNode>( maxCells );
 		var closedSet = new HashSet<AStarNode>();
-		var openSetReference = new Dictionary<int, AStarNode>(); // We need this because we create AStarNode down the line for each neighbour and we need a way to reference these
 
-		var startNode = new AStarNode( start );
-		var endNode = new AStarNode( end );
+		var startNode = new AStarNode( this, start );
+		var endNode = new AStarNode( this, end );
+
+		if ( !startNode.IsValid || !startNode.IsValid )
+			return path;
 
 		openSet.Add( startNode );
 
@@ -37,7 +39,7 @@ partial class VoxelWorld
 			var currentNode = openSet.RemoveFirst();
 			closedSet.Add( currentNode );
 
-			if ( currentNode.Position == endNode.Position )
+			if ( currentNode.Data.Position == endNode.Data.Position )
 			{
 				RetracePath( ref path, startNode, currentNode );
 				break;

@@ -1,6 +1,6 @@
 ﻿namespace Deathcard;
 
-public struct AStarNode : IHeapItem<AStarNode>, IEquatable<AStarNode>
+public struct AStarNode : IHeapItem<AStarNode>, IEquatable<AStarNode>, IValid
 {
 	public VoxelQueryData Data { get; internal set; }
 	public VoxelWorld World { get; internal set; }
@@ -8,6 +8,7 @@ public struct AStarNode : IHeapItem<AStarNode>, IEquatable<AStarNode>
 	public float hCost { get; internal set; } = 0f;
 	public float fCost => gCost + hCost;
 	public int HeapIndex { get; set; }
+	public bool IsValid = false;
 
 	public AStarNode() { }
 
@@ -15,8 +16,26 @@ public struct AStarNode : IHeapItem<AStarNode>, IEquatable<AStarNode>
 	{
 		Data = data;
 		World = world;
+		IsValid = true;
 	}
 
+	public AStarNode( VoxelWorld world, Vector3B offset ) : this()
+	{
+		var queryData = World?.GetByOffset( offset );
+
+		if ( queryData != null )
+		{
+			Data = queryData.Value;
+			World = world;
+			IsValid = true;
+		}
+	}
+
+	/// <summary>
+	/// Get the neighbouring voxel
+	/// </summary>
+	/// <param name="offset"></param>
+	/// <returns></returns>
 	public AStarNode? GetNeighbour( Vector3B offset )
 	{
 		var checkPosition = Data.Position + offset;
@@ -32,6 +51,30 @@ public struct AStarNode : IHeapItem<AStarNode>, IEquatable<AStarNode>
 		return null;
 	}
 
+	/// <summary>
+	/// Get all neighbouring voxels
+	/// </summary>
+	/// <returns></returns>
+	public IEnumerable<AStarNode> GetNeighbours()
+	{
+		for ( int x = -1; x < 1; x++ )
+		{
+			for ( int y = -1; y < 1; y++ )
+			{
+				for ( int z = -1; z < 1; z++ )
+				{
+					var offset = new Vector3( x, y, z );
+					if ( offset == Vector3.Zero ) continue;
+
+					var neighbourFound = GetNeighbour( offset );
+
+					if ( neighbourFound != null )
+						yield return neighbourFound.Value;
+				}
+			}
+		}
+	}
+
 
 	public int CompareTo( AStarNode other )
 	{
@@ -43,12 +86,11 @@ public struct AStarNode : IHeapItem<AStarNode>, IEquatable<AStarNode>
 
 	public override int GetHashCode()
 	{
-		var currentHash = Current.GetHashCode();
-		var positionHash = Position.GetHashCode();
+		var currentHash = Data.GetHashCode();
 		var gCostHash = gCost.GetHashCode();
 		var hCostHash = hCost.GetHashCode();
 
-		return HashCode.Combine( currentHash, positionHash, gCostHash, hCostHash );
+		return HashCode.Combine( currentHash, gCostHash, hCostHash );
 	}
 
 	public static bool operator ==( AStarNode a, AStarNode b ) => a.Equals( b );
