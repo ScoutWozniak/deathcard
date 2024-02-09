@@ -4,11 +4,13 @@ public struct AStarNode : IHeapItem<AStarNode>, IEquatable<AStarNode>, IValid
 {
 	public VoxelQueryData Data { get; internal set; }
 	public VoxelWorld World { get; internal set; }
-	public float gCost { get; internal set; } = 0f;
-	public float hCost { get; internal set; } = 0f;
+	public float gCost { get; set; } = 0f;
+	public float hCost { get; set; } = 0f;
 	public float fCost => gCost + hCost;
 	public int HeapIndex { get; set; }
 	public bool IsValid = false;
+	bool IValid.IsValid => IsValid;
+	public int Parent;
 
 	public AStarNode() { }
 
@@ -75,6 +77,14 @@ public struct AStarNode : IHeapItem<AStarNode>, IEquatable<AStarNode>, IValid
 		}
 	}
 
+	/// <summary>
+	/// Get the distance between the node's voxel's position
+	/// </summary>
+	/// <param name="other"></param>
+	/// <returns></returns>
+	public float Distance( AStarNode other )
+		=> Data.Position.Distance( other.Data.Position );
+
 
 	public int CompareTo( AStarNode other )
 	{
@@ -86,11 +96,13 @@ public struct AStarNode : IHeapItem<AStarNode>, IEquatable<AStarNode>, IValid
 
 	public override int GetHashCode()
 	{
-		var currentHash = Data.GetHashCode();
+		/* // Just testing if we need all this
+		var dataHash = Data.GetHashCode(); 
 		var gCostHash = gCost.GetHashCode();
 		var hCostHash = hCost.GetHashCode();
+		*/
 
-		return HashCode.Combine( currentHash, gCostHash, hCostHash );
+		return HashCode.Combine( Data.GetHashCode() );
 	}
 
 	public static bool operator ==( AStarNode a, AStarNode b ) => a.Equals( b );

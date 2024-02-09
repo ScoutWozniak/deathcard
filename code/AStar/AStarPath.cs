@@ -22,7 +22,7 @@ public struct AStarPath
 		var length = 0f;
 
 		for ( int i = 0; i < Nodes.Count - 1; i++ )
-			length += Nodes[i].Position.Distance( Nodes[i + 1].Position );
+			length += Nodes[i].Data.Position.Distance( Nodes[i + 1].Data.Position );
 
 		return length;
 	}
