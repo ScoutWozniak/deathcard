@@ -145,11 +145,6 @@ public class Player : Component
 				SimulateWalk();
 		}
 
-		var world = Scene.GetAllComponents<VoxelWorld>().First();
-		var position = world?.WorldToVoxel( Transform.Position );
-		var voxel = world?.GetByOffset( position.Value );
-		Log.Info( voxel.Value.Voxel );
-
 		/*
 		if ( WalkController == null || !WalkController.Enabled ) return;
 
