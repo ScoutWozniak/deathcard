@@ -25,7 +25,7 @@ class VoxelWorldEditor : EditorTool<VoxelWorld>
 		{
 			windowOpen = value;
 			if ( window == null )
-				instance.CreateWindow();
+				(instance ?? new()).CreateWindow();
 
 			window.Visible = value;
 		}
@@ -55,11 +55,26 @@ class VoxelWorldEditor : EditorTool<VoxelWorld>
 		window = new WidgetWindow( SceneOverlay, "VoxelWorld Tools" );
 		window.MinimumWidth = 400;
 		window.MinimumHeight = SceneOverlay.Height;
-		
-		// Tools
+
 		var layout = Layout.Column();
 		layout.Margin = 8f;
 		layout.Alignment = TextFlag.Top;
+
+		if ( Selected == null )
+		{
+			layout.Add( new global::Editor.Label( "WARNING!: You need to select any VoxelWorld.", window )
+			{
+				Color = Theme.Red,
+				Position = new Vector2( 10, 30 ),
+			} );
+
+			window.Layout = layout;
+			AddOverlay( window, TextFlag.RightCenter, 0 );
+
+			return;
+		}
+
+		// Tools
 		tool = layout.Add( new EnumProperty<VoxelTool>( window ) );
 		layout.AddSpacingCell( 8f );
 		mode = layout.Add( new EnumProperty<ToolMode>( window ) );
@@ -83,11 +98,12 @@ class VoxelWorldEditor : EditorTool<VoxelWorld>
 
 			Paint.Antialiasing = true;
 			Paint.TextAntialiasing = true;
+
+			Paint.BilinearFiltering = false;
 			Paint.Draw( widget.Rect, item.Icon );
 
 			if ( item.Guid == selected.Guid )
 			{
-				Paint.ClearPen();
 				Paint.SetBrush( Theme.Blue.WithAlpha( 0.30f ) );
 				Paint.SetPen( Theme.Blue.WithAlpha( 0.90f ) );
 				Paint.DrawRect( widget.Rect.Grow( 0 ) );
@@ -126,7 +142,6 @@ class VoxelWorldEditor : EditorTool<VoxelWorld>
 
 		// Assign layout to window.
 		window.Layout = layout;
-		AddOverlay( window, TextFlag.RightCenter, 0 );
 	}
 
 	public override void OnSelectionChanged()
@@ -134,6 +149,11 @@ class VoxelWorldEditor : EditorTool<VoxelWorld>
 		base.OnSelectionChanged();
 
 		Selected = GetSelectedComponent<VoxelWorld>();
+		if ( Open )
+		{
+			window?.Close();
+			CreateWindow();
+		}
 	}
 
 	// Gizmo stuff.
